@@ -46,6 +46,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
 .src{font-size:12px;color:var(--mute);display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 .src .dz{background:var(--green-soft);color:var(--green);padding:3px 8px;border-radius:6px;font-weight:600}
+.src .dz.kurs{background:#F3E9CF;color:#8A6A18}
 .src .freq{color:#8A6A18}
 .qimg{display:block;max-width:100%;max-height:340px;margin:0 auto 14px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:zoom-in}
 .qtxt{font-family:var(--serif);font-size:21px;line-height:1.35;font-weight:400;margin:0 0 16px;font-variation-settings:"opsz" 30}
@@ -247,7 +248,8 @@ function pick(){
 // ---------- practice rendering
 let cur={q:null,order:[],answered:false,streak:0};
 function srcLine(q){
-  return '<div class="src"><span class="dz">'+esc(q.d)+'</span></div>';
+  const kurs=q.s.some(x=>/^Test wiedzy/.test(x));
+  return '<div class="src"><span class="dz'+(kurs?' kurs':'')+'">'+(kurs?'Pytanie z kursu':'Pytanie z egzaminu')+'</span></div>';
 }
 function tableHtml(t){ return (t||[]).map(tb=>'<table class="qtbl">'+tb.split('\n').map(r=>'<tr>'+r.split(' | ').map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</table>').join(''); }
 function qBody(q,order,letters){
