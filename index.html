@@ -79,6 +79,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 /* level line */
 .level{display:flex;flex-direction:column;gap:8px;margin:4px 2px 14px;font-size:14px;color:var(--mute)}
+.level .lvlCap{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:-6px}
 .level #lvlName{font-family:var(--serif);font-size:24px;line-height:1.15;color:var(--ink)}
 .level .lbar{height:9px;background:var(--line);border-radius:9px;overflow:hidden}
 .level .lbar i{display:block;height:100%;background:var(--straw);width:0;transition:width .4s}
@@ -146,7 +147,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   </div>
 
   <div id="practice">
-    <div class="level"><span id="lvlName"></span><div class="lbar"><i id="lvlBar"></i></div></div>
+    <div class="level"><span class="lvlCap">Twój poziom:</span><span id="lvlName"></span><div class="lbar"><i id="lvlBar"></i></div></div>
     <div class="status"><span class="mode" id="modeLbl"></span><span id="counter"></span></div>
     <div class="bar"><i id="pbar"></i></div>
     <div class="card" id="card"></div>
