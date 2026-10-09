@@ -190,11 +190,11 @@ const Q = window.PYTANIA;
 const byId = Object.fromEntries(Q.map(q=>[q.id,q]));
 const CATS = [...new Set(Q.map(q=>q.d))].sort((a,b)=>a.localeCompare(b,'pl'));
 const LEVEL_NAMES = ["Absolutnie nie rolnik", "Nadal nie rolnik", "Dalej nie rolnik", "Rolnik? Nie słyszałem", "Widziałem traktor na zdjęciu", "Widziałem traktor na żywo", "Dotknąłem traktora", "Mylę pszenicę z jęczmieniem", "Mylę krowę z bykiem", "Myślę, że mleko rośnie w sklepie", "Powiedzmy, że parobek", "Parobek na próbę", "Parobek stażysta", "Parobek z ambicjami", "Parobek z własnymi gumofilcami", "Parobek roku (w swojej wsi)", "Nieogarnięty prawie pomocnik rolnika", "Trochę ogarnięty prawie pomocnik rolnika", "Ogarnięty prawie pomocnik rolnika", "Pomocnik rolnika (na papierze)", "Pomocnik rolnika (w praktyce)", "Pomocnik rolnika z opinią", "Rolnik wannabe", "Rolnik po YouTube", "Rolnik po TikToku", "Rolnik weekendowy", "Rolnik od święta", "Rolnik z doskoku", "Umiem odpalić traktor", "Umiem zaparkować traktor", "Umiem zawrócić z przyczepą", "Odróżniam krowę od byka", "Odróżniam oziminę od jarej", "Odróżniam obornik od kompostu (po zapachu)", "Gospodarz na pół etatu", "Gospodarz na trzy czwarte etatu", "Gospodarz (sąsiedzi jeszcze nie wiedzą)", "Gospodarz (sąsiedzi już plotkują)", "Gospodarz pełną gębą", "Gospodarz z własnym kombajnem (w planach)", "Ten, co wie, kiedy siać", "Ten, co wie, kiedy zbierać", "Ten, co wie, kiedy nie wyjeżdżać w pole", "Postrach chwastów", "Postrach stonki", "Postrach dzików", "Zaklinacz ciągników", "Zaklinacz pogody", "Zaklinacz krów", "Znawca nawozów", "Znawca gleby (liże i wie)", "Znawca dopłat", "Sołtys w zapasie", "Zastępca sołtysa", "Sołtys", "Sołtys z pieczątką", "Sołtys dwóch wsi", "Agronom z przypadku", "Agronom z wyboru", "Agronom z powołania", "Doradca rolniczy (nieproszony)", "Doradca rolniczy (proszony)", "Doradca rolniczy (opłacany)", "Weterynarz amator", "Mechanik od wszystkiego", "Inspektor własnego pola", "Legenda gminy", "Legenda powiatu", "Legenda województwa", "Gwiazda dożynek", "Honorowy gość targów rolnych", "Pan na włościach", "Mistrz roli", "Mistrz zasiewu", "Mistrz żniw", "Arcymistrz roli", "Arcymistrz zasiewu", "Arcymistrz żniw", "Baron ziemniaczany", "Hrabia rzepakowy", "Książę pszenicy", "Władca pól", "Władca łąk i pastwisk", "Władca obornika", "Półbóg urodzaju", "Szeptacz do kombajnów", "Chodząca encyklopedia rolnicza", "Ten, którego pyta sam ODR", "Egzaminator się Ciebie boi", "Egzamin? Formalność.", "Egzamin? Zdany w myślach.", "Król Rolnik"];
-const LEVEL_STEPS = [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30];
+const LEVEL_STEPS = LEVEL_NAMES.slice(1).map((_,i)=>i<10?15:20);
 const LEVELS = LEVEL_NAMES.map((n,i)=>[LEVEL_STEPS.slice(0,i).reduce((a,b)=>a+b,0),n]);
 const KEY='rol04v1';
 
-let S = load();
+let S = load(); if(S.v!==2){ S.pts=Math.round(S.pts/10); S.v=2; save(); }
 function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.q) return s; }catch(e){} return {pts:0,best:0,q:{},mode:'smart',cats:[],exams:[],recent:[]}; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
@@ -269,8 +269,8 @@ function answer(i){
   const knewIt=st.c>0; review(st,ok);
   S.recent.push(q.id); if(S.recent.length>25) S.recent.shift();
   let gain=0, loss=0;
-  if(ok){ cur.streak++; gain=10+Math.min(10,Math.max(0,cur.streak-2)*2); S.pts+=gain; S.best=Math.max(S.best,cur.streak); }
-  else { cur.streak=0; if(knewIt){ loss=Math.min(10,S.pts); S.pts-=loss; } card.classList.add('shake'); setTimeout(()=>card.classList.remove('shake'),450); }
+  if(ok){ cur.streak++; gain=cur.streak>=5?2:1; S.pts+=gain; S.best=Math.max(S.best,cur.streak); }
+  else { cur.streak=0; if(knewIt){ loss=Math.min(1,S.pts); S.pts-=loss; } card.classList.add('shake'); setTimeout(()=>card.classList.remove('shake'),450); }
   save();
   card.querySelectorAll('.ans').forEach(b=>{ b.disabled=true; const bi=+b.dataset.i; if(bi===q.a) b.classList.add('ok'); else if(bi===i) b.classList.add('bad'); });
   const fb=$('#fb'); fb.className='fb show '+(ok?'ok':'bad');
@@ -332,7 +332,7 @@ function renderDots(res){ $('#dots').innerHTML=exam.qs.map((q,i)=>'<b class="'+(
 function finishExam(){
   clearInterval(exam.timer); let score=0;
   exam.qs.forEach((q,i)=>{ const st=stat(q.id); const ok=exam.ans[i]===q.a; if(ok) score++; review(st,ok); });
-  const pass=score>=exam.qs.length/2; S.pts+=score*10+(pass?100:0); S.exams.push({date:new Date().toLocaleDateString('pl-PL'),score,n:exam.qs.length}); save();
+  const pass=score>=exam.qs.length/2; S.pts+=score+(pass?5:0); S.exams.push({date:new Date().toLocaleDateString('pl-PL'),score,n:exam.qs.length}); save();
   const wrong=exam.qs.map((q,i)=>[q,i]).filter(([q,i])=>exam.ans[i]!==q.a);
   $('#examCard').innerHTML='<div class="result"><div class="big '+(pass?'pass':'fail')+'">'+score+' / '+exam.qs.length+'</div><p>'+(pass?'Egzamin zaliczony (próg 50%). +'+(score*10+100)+' pkt':'Poniżej progu 50%. +'+(score*10)+' pkt – następnym razem pójdzie lepiej.')+'</p></div>'+
     (wrong.length?'<h3 style="font-size:15px;margin:18px 0 8px">Do powtórki ('+wrong.length+')</h3>'+wrong.map(([q,i])=>'<div style="border-top:1px solid var(--line);padding:12px 0"><p class="qtxt" style="font-size:16px;margin:0 0 8px">'+esc(q.q)+'</p>'+(q.img?'<img class="qimg" src="'+q.img+'" style="max-height:200px">':'')+'<div style="font-size:14px">'+(exam.ans[i]===null?'<span style="color:var(--mute)">brak odpowiedzi</span>':'<span style="color:var(--bad)">✘ '+esc(q.o[exam.ans[i]])+'</span>')+'<br><span style="color:var(--ok)">✔ '+esc(q.o[q.a])+'</span></div></div>').join(''):'')+
