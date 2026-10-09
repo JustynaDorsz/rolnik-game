@@ -189,8 +189,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 const Q = window.PYTANIA;
 const byId = Object.fromEntries(Q.map(q=>[q.id,q]));
 const CATS = [...new Set(Q.map(q=>q.d))].sort((a,b)=>a.localeCompare(b,'pl'));
-const LEVEL_NAMES = ['Absolutnie nie rolnik','Nadal nie rolnik','Widziałem traktor na zdjęciu','Mylę pszenicę z jęczmieniem','Powiedzmy, że parobek','Parobek na próbę','Parobek z ambicjami','Nieogarnięty prawie pomocnik rolnika','Ogarnięty prawie pomocnik rolnika','Pomocnik rolnika (na papierze)','Rolnik wannabe','Rolnik po YouTube','Rolnik weekendowy','Umiem odpalić traktor','Odróżniam krowę od byka','Gospodarz na pół etatu','Gospodarz (sąsiedzi jeszcze nie wiedzą)','Gospodarz pełną gębą','Ten, co wie, kiedy siać','Postrach chwastów','Zaklinacz ciągników','Sołtys w zapasie','Sołtys','Agronom z przypadku','Agronom z wyboru','Doradca rolniczy (nieproszony)','Legenda gminy','Mistrz roli','Arcymistrz roli','Król pól','Egzamin? Formalność.'];
-const LEVEL_STEPS = [30,30,40,40,50,50,60,70,80,90,100,120,140,160,180,200,230,260,300,340,380,420,470,520,580,640,700,800,900,1000];
+const LEVEL_NAMES = ["Absolutnie nie rolnik", "Nadal nie rolnik", "Dalej nie rolnik", "Rolnik? Nie słyszałem", "Widziałem traktor na zdjęciu", "Widziałem traktor na żywo", "Dotknąłem traktora", "Mylę pszenicę z jęczmieniem", "Mylę krowę z bykiem", "Myślę, że mleko rośnie w sklepie", "Powiedzmy, że parobek", "Parobek na próbę", "Parobek stażysta", "Parobek z ambicjami", "Parobek z własnymi gumofilcami", "Parobek roku (w swojej wsi)", "Nieogarnięty prawie pomocnik rolnika", "Trochę ogarnięty prawie pomocnik rolnika", "Ogarnięty prawie pomocnik rolnika", "Pomocnik rolnika (na papierze)", "Pomocnik rolnika (w praktyce)", "Pomocnik rolnika z opinią", "Rolnik wannabe", "Rolnik po YouTube", "Rolnik po TikToku", "Rolnik weekendowy", "Rolnik od święta", "Rolnik z doskoku", "Umiem odpalić traktor", "Umiem zaparkować traktor", "Umiem zawrócić z przyczepą", "Odróżniam krowę od byka", "Odróżniam oziminę od jarej", "Odróżniam obornik od kompostu (po zapachu)", "Gospodarz na pół etatu", "Gospodarz na trzy czwarte etatu", "Gospodarz (sąsiedzi jeszcze nie wiedzą)", "Gospodarz (sąsiedzi już plotkują)", "Gospodarz pełną gębą", "Gospodarz z własnym kombajnem (w planach)", "Ten, co wie, kiedy siać", "Ten, co wie, kiedy zbierać", "Ten, co wie, kiedy nie wyjeżdżać w pole", "Postrach chwastów", "Postrach stonki", "Postrach dzików", "Zaklinacz ciągników", "Zaklinacz pogody", "Zaklinacz krów", "Znawca nawozów", "Znawca gleby (liże i wie)", "Znawca dopłat", "Sołtys w zapasie", "Zastępca sołtysa", "Sołtys", "Sołtys z pieczątką", "Sołtys dwóch wsi", "Agronom z przypadku", "Agronom z wyboru", "Agronom z powołania", "Doradca rolniczy (nieproszony)", "Doradca rolniczy (proszony)", "Doradca rolniczy (opłacany)", "Weterynarz amator", "Mechanik od wszystkiego", "Inspektor własnego pola", "Legenda gminy", "Legenda powiatu", "Legenda województwa", "Gwiazda dożynek", "Honorowy gość targów rolnych", "Pan na włościach", "Mistrz roli", "Mistrz zasiewu", "Mistrz żniw", "Arcymistrz roli", "Arcymistrz zasiewu", "Arcymistrz żniw", "Baron ziemniaczany", "Hrabia rzepakowy", "Książę pszenicy", "Władca pól", "Władca łąk i pastwisk", "Władca obornika", "Półbóg urodzaju", "Szeptacz do kombajnów", "Chodząca encyklopedia rolnicza", "Ten, którego pyta sam ODR", "Egzaminator się Ciebie boi", "Egzamin? Formalność.", "Egzamin? Zdany w myślach.", "Król Rolnik"];
+const LEVEL_STEPS = [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30];
 const LEVELS = LEVEL_NAMES.map((n,i)=>[LEVEL_STEPS.slice(0,i).reduce((a,b)=>a+b,0),n]);
 const KEY='rol04v1';
 
@@ -202,7 +202,10 @@ function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} 
 const $=s=>document.querySelector(s);
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function stat(id){ return S.q[id]||(S.q[id]={s:0,c:0,w:0,lw:0,run:0}); }
+function stat(id){ const st=S.q[id]||(S.q[id]={s:0,c:0,w:0,lw:0,run:0,box:0,due:0}); if(st.box==null){st.box=st.lw?0:Math.min(st.run||0,3);st.due=0;} return st; }
+// spaced repetition (Leitner-style boxes): interval after each correct answer
+const INTERVALS=[5*60e3, 30*60e3, 3*3600e3, 86400e3, 3*86400e3, 7*86400e3, 14*86400e3, 30*86400e3];
+function review(st,ok){ st.s++; if(ok){st.c++;st.run++;st.lw=0;st.box=Math.min(st.box+1,INTERVALS.length-1);} else {st.w++;st.run=0;st.lw=1;st.box=0;} st.due=Date.now()+INTERVALS[st.box]; }
 function pool(){ const cs=S.cats.length?new Set(S.cats):null; return Q.filter(q=>!cs||cs.has(q.d)); }
 function level(){ let i=0; for(let k=0;k<LEVELS.length;k++) if(S.pts>=LEVELS[k][0]) i=k; const cur=LEVELS[i], nxt=LEVELS[i+1]; return {name:cur[1], pct: nxt? (S.pts-cur[0])/(nxt[0]-cur[0])*100 : 100}; }
 
@@ -213,7 +216,7 @@ function renderHead(){
   $('#acc').textContent = (c+w)? Math.round(c/(c+w)*100)+'% trafień' : 'start';
   $('#streak').textContent=cur.streak; $('#streakChip').classList.toggle('hot',cur.streak>=3);
   const L=level(); $('#lvlName').innerHTML='Poziom: <b>'+L.name+'</b>'; $('#lvlBar').style.width=L.pct+'%';
-  const modes={smart:'Sprytny mix',new:'Nowe pytania',wrong:'Moje błędy',hot:'Najczęstsze na egzaminie'};
+  const modes={smart:'',new:'Nowe pytania',wrong:'Moje błędy',hot:'Najczęstsze na egzaminie'};
   $('#modeLbl').textContent=modes[S.mode]||'' ;
   const p=pool(); const seenP=p.filter(q=>S.q[q.id]&&S.q[q.id].s).length;
   $('#counter').textContent='przerobione '+seenP+' / '+p.length;
@@ -228,8 +231,13 @@ function pick(){
   if(S.mode==='new'){ const n=cand.filter(q=>!S.q[q.id]||!S.q[q.id].s); if(n.length) cand=n; else return null; }
   if(S.mode==='wrong'){ const n=cand.filter(q=>S.q[q.id]&&S.q[q.id].lw); if(n.length) cand=n; else return null; }
   if(S.mode==='hot'){ const n=cand.filter(q=>q.s.length>=2); if(n.length) cand=n; }
-  // weighted
-  const w=cand.map(q=>{const s=S.q[q.id]; let x=1; if(!s||!s.s) x=3; else if(s.lw) x=4; else x=Math.max(.25,1/(1+s.run)); if(q.s.length>=3) x*=1.3; return x;});
+  // weighted: due-for-review first (the more overdue, the likelier), then new, rarely not-yet-due
+  const now=Date.now();
+  const w=cand.map(q=>{const s=S.q[q.id]; let x;
+    if(!s||!s.s) x=3;
+    else if(now>=(s.due||0)){ const od=(now-(s.due||0))/86400e3; x=(s.lw?6:4)+Math.min(4,od); }
+    else x=0.1;
+    if(q.s.length>=3) x*=1.3; return x;});
   let t=w.reduce((a,b)=>a+b,0)*Math.random(); for(let i=0;i<cand.length;i++){ t-=w[i]; if(t<=0) return cand[i]; }
   return cand[cand.length-1];
 }
@@ -258,15 +266,16 @@ function showQ(){
 function answer(i){
   if(cur.answered) return; cur.answered=true;
   const q=cur.q, ok=i===q.a, st=stat(q.id), card=$('#card');
-  st.s++; if(ok){st.c++;st.run++;st.lw=0;} else {st.w++;st.run=0;st.lw=1;}
+  const knewIt=st.c>0; review(st,ok);
   S.recent.push(q.id); if(S.recent.length>25) S.recent.shift();
-  let gain=0;
-  if(ok){ cur.streak++; gain=10+Math.min(10,Math.max(0,cur.streak-2)*2); S.pts+=gain; S.best=Math.max(S.best,cur.streak); } else { cur.streak=0; card.classList.add('shake'); setTimeout(()=>card.classList.remove('shake'),450); }
+  let gain=0, loss=0;
+  if(ok){ cur.streak++; gain=10+Math.min(10,Math.max(0,cur.streak-2)*2); S.pts+=gain; S.best=Math.max(S.best,cur.streak); }
+  else { cur.streak=0; if(knewIt){ loss=Math.min(10,S.pts); S.pts-=loss; } card.classList.add('shake'); setTimeout(()=>card.classList.remove('shake'),450); }
   save();
   card.querySelectorAll('.ans').forEach(b=>{ b.disabled=true; const bi=+b.dataset.i; if(bi===q.a) b.classList.add('ok'); else if(bi===i) b.classList.add('bad'); });
   const fb=$('#fb'); fb.className='fb show '+(ok?'ok':'bad');
   const praise=['Dobrze!','Trafione!','Zgadza się.','Tak jest!','Świetnie!'][Math.random()*5|0];
-  fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':'<h4>Nie tym razem.</h4><p>Poprawna odpowiedź: <b>'+esc(q.o[q.a])+'</b></p>')+(q.w?'<p style="margin-top:6px">'+esc(q.w)+'</p>':'');
+  fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':(loss?'<span class="gain">−'+loss+'</span>':'')+'<h4>'+(loss?'Przecież to już umiałeś!':'Nie tym razem.')+'</h4><p>Poprawna odpowiedź: <b>'+esc(q.o[q.a])+'</b></p>')+(q.w?'<p style="margin-top:6px">'+esc(q.w)+'</p>':'');
   $('#next').classList.add('show'); renderHead();
 }
 
@@ -322,7 +331,7 @@ function examNav(d){ const n=exam.i+d; if(n<0||n>=exam.qs.length) return; exam.i
 function renderDots(res){ $('#dots').innerHTML=exam.qs.map((q,i)=>'<b class="'+(res?(exam.ans[i]===q.a?'ok':'bad'):(exam.ans[i]!==null?'done':''))+(i===exam.i&&!res?' cur':'')+'" data-i="'+i+'"></b>').join(''); if(!res) $('#dots').querySelectorAll('b').forEach(b=>b.onclick=()=>{exam.i=+b.dataset.i;examShow();}); }
 function finishExam(){
   clearInterval(exam.timer); let score=0;
-  exam.qs.forEach((q,i)=>{ const st=stat(q.id); st.s++; if(exam.ans[i]===q.a){score++;st.c++;st.run++;st.lw=0;} else {st.w++;st.run=0;st.lw=1;} });
+  exam.qs.forEach((q,i)=>{ const st=stat(q.id); const ok=exam.ans[i]===q.a; if(ok) score++; review(st,ok); });
   const pass=score>=exam.qs.length/2; S.pts+=score*10+(pass?100:0); S.exams.push({date:new Date().toLocaleDateString('pl-PL'),score,n:exam.qs.length}); save();
   const wrong=exam.qs.map((q,i)=>[q,i]).filter(([q,i])=>exam.ans[i]!==q.a);
   $('#examCard').innerHTML='<div class="result"><div class="big '+(pass?'pass':'fail')+'">'+score+' / '+exam.qs.length+'</div><p>'+(pass?'Egzamin zaliczony (próg 50%). +'+(score*10+100)+' pkt':'Poniżej progu 50%. +'+(score*10)+' pkt – następnym razem pójdzie lepiej.')+'</p></div>'+
