@@ -321,7 +321,8 @@ function renderSheet(){
   $('#cats').innerHTML=CATS.map(c=>'<button class="tog small'+(tmpCats.has(c)?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+' <span style="opacity:.7">'+Q.filter(q=>q.d===c).length+'</span></button>').join('');
   $('#cats').querySelectorAll('.tog').forEach(b=>b.onclick=()=>{const c=b.dataset.c; if(tmpCats.has(c)) tmpCats.delete(c); else tmpCats.add(c); b.classList.toggle('on');});
   // stats per cat
-  $('#stats').innerHTML=CATS.map(c=>{ const qs=Q.filter(q=>q.d===c); let seen=0,cc=0,ww=0; qs.forEach(q=>{const s=S.q[q.id]; if(s&&s.s){seen++;cc+=s.c;ww+=s.w}}); const pct=(cc+ww)?Math.round(cc/(cc+ww)*100):0; return '<div class="stat"><span>'+esc(c)+'</span><span class="n">'+seen+'/'+qs.length+' · '+((cc+ww)?pct+'%':'–')+'</span><div class="sb"><i style="width:'+pct+'%"></i></div></div>'; }).join('');
+  // opanowane = pytania, na które ostatnia odpowiedź była poprawna; pasek i % liczone względem całego działu
+  $('#stats').innerHTML=CATS.map(c=>{ const qs=Q.filter(q=>q.d===c); let seen=0,known=0; qs.forEach(q=>{const s=S.q[q.id]; if(s&&s.s){seen++; if(!s.lw) known++;}}); const pct=Math.round(known/qs.length*100); return '<div class="stat"><span>'+esc(c)+'</span><span class="n">'+(seen?'widziane '+seen+'/'+qs.length+' · opanowane '+known+' ('+pct+'%)':'0/'+qs.length)+'</span><div class="sb"><i style="width:'+pct+'%"></i></div></div>'; }).join('');
   $('#info').textContent='Bank: '+Q.length+' unikalnych pytań z egzaminów CKE ROL.04 (2013–2025). Najlepsza seria: '+S.best+'. Wynik zaliczający na egzaminie: 20/40.';
 }
 $('#apply').onclick=()=>{ S.cats=[...tmpCats]; if(tmpMode==='exam'){ S.mode='smart'; save(); closeSheet(); startExam(); return; } S.mode=tmpMode; save(); closeSheet(); showQ(); };
