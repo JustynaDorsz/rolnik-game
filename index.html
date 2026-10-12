@@ -134,6 +134,21 @@ button{font:inherit;color:inherit;cursor:pointer}
 .tip{position:absolute;z-index:30;max-width:min(300px,calc(100vw - 24px));background:var(--ink);color:#fff;font-size:13px;line-height:1.4;padding:9px 12px;border-radius:9px;box-shadow:0 6px 20px rgba(0,0,0,.18);display:none}
 .tip.show{display:block}
 .tip:before{content:"";position:absolute;top:-6px;left:var(--ax,20px);border:6px solid transparent;border-top:0;border-bottom-color:var(--ink)}
+/* level up */
+.lvlup{position:fixed;inset:0;z-index:40;display:none;place-items:center;background:rgba(30,42,29,.55);backdrop-filter:blur(2px);cursor:pointer;overflow:hidden}
+.lvlup.show{display:grid}
+.lvlup .box{position:relative;background:var(--paper);border-radius:18px;padding:30px 30px 26px;max-width:min(420px,calc(100vw - 32px));text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:popin .55s cubic-bezier(.2,1.4,.4,1)}
+.lvlup .cap{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--straw);font-weight:700}
+.lvlup .name{font-family:var(--serif);font-size:30px;line-height:1.15;margin:10px 0 6px;color:var(--ink)}
+.lvlup .num{font-size:13px;color:var(--mute)}
+.lvlup .quip{margin:16px 0 0;font-size:15.5px;color:var(--green);font-weight:600}
+.lvlup .ring{position:absolute;inset:-6px;border-radius:24px;border:3px solid var(--straw);animation:ring 1.2s ease-out infinite;pointer-events:none}
+.lvlup .pt{position:absolute;top:-10vh;font-size:26px;animation:fall linear forwards;pointer-events:none}
+@keyframes popin{from{transform:scale(.5) rotate(-4deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes ring{from{transform:scale(1);opacity:.8}to{transform:scale(1.12);opacity:0}}
+@keyframes fall{to{transform:translateY(120vh) rotate(540deg);opacity:.7}}
+.level.bump #lvlName{animation:bump .6s cubic-bezier(.2,1.4,.4,1)}
+@keyframes bump{30%{transform:scale(1.12);color:var(--straw)}}
 .empty{text-align:center;padding:30px 10px;color:var(--mute)}
 @media (max-width:420px){.qtxt{font-size:19px}.chip{padding:5px 9px;font-size:12px}.brand{font-size:16px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -195,6 +210,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 </div>
 <div class="zoom" id="zoom"><img alt=""></div>
 <div class="tip" id="tip" role="tooltip"></div>
+<div class="lvlup" id="lvlup"><div class="box"><div class="ring"></div><div class="cap">Twój nowy poziom</div><div class="name" id="luName"></div><div class="num" id="luNum"></div><p class="quip" id="luQuip"></p></div></div>
 
 <script src="pytania.js"></script>
 <script>
@@ -286,7 +302,7 @@ function showQ(){
 function answer(i){
   if(cur.answered) return; cur.answered=true;
   const q=cur.q, ok=i===q.a, st=stat(q.id), card=$('#card');
-  const knewIt=st.c>0; review(st,ok);
+  const knewIt=st.c>0, lvlBefore=level().idx; review(st,ok);
   S.recent.push(q.id); if(S.recent.length>25) S.recent.shift();
   let gain=0, loss=0;
   if(ok){ cur.streak++; gain=cur.streak>=5?2:1; S.pts+=gain; S.best=Math.max(S.best,cur.streak); }
@@ -297,11 +313,13 @@ function answer(i){
   const praise=['Dobrze!','Trafione!','Zgadza się.','Tak jest!','Świetnie!'][Math.random()*5|0];
   fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':(loss?'<span class="gain">−'+loss+'</span>':'')+'<h4>'+(loss?(fem()?'Przecież to już umiałaś!':'Przecież to już umiałeś!'):'Nie tym razem.')+'</h4><p>Poprawna odpowiedź: <b>'+esc(q.o[q.a])+'</b></p>')+(q.w?'<p style="margin-top:6px">'+esc(q.w)+'</p>':'');
   $('#next').classList.add('show'); renderHead();
+  const L=level(); if(L.idx>lvlBefore) levelUp(L);
 }
 
 // keyboard
 document.addEventListener('keydown',e=>{
   if($('#sheet').classList.contains('show')){ if(e.key==='Escape') closeSheet(); return; }
+  if($('#lvlup').classList.contains('show')){ hideLevelUp(); return; }
   if($('#zoom').classList.contains('show')){ $('#zoom').classList.remove('show'); return; }
   const k=e.key.toLowerCase(); const map={'1':0,'2':1,'3':2,'4':3,a:0,b:1,c:2,d:3};
   if(exam.on){ if(k in map) examAnswer(map[k]); else if(k==='arrowright'||k==='enter') examNav(1); else if(k==='arrowleft') examNav(-1); return; }
@@ -317,6 +335,43 @@ function openZoom(src){
 }
 
 
+
+// ---------- awans poziomu
+const QUIPS=[
+  ()=>'No patrz, a jednak coś tam już umiesz.',
+  ()=>'Sąsiad by nie uwierzył.',
+  ()=>'Kombajn jeszcze nie Twój, ale już bliżej.',
+  ()=>'Gęsi zaczynają Cię szanować.',
+  ()=>'Traktor by się nie zawstydził.',
+  ()=>'Z takim tempem to do żniw zdążysz.',
+  ()=>'Krowy patrzą z lekkim podziwem.',
+  ()=>'Ziemia drży. Trochę.',
+  ()=>'Egzaminator poprawia krawat.',
+  ()=>'Ktoś tu chyba czytał, a nie tylko klikał.',
+  ()=>'No dobra, to nie był przypadek.',
+  ()=>'Stonka właśnie się dowiedziała i jest zaniepokojona.',
+  ()=>'Jeszcze nie sołtys, ale w sklepie już Cię znają.',
+  ()=>'Nawet kogut wstał wcześniej, żeby to zobaczyć.',
+  ()=>'Gumofilce aż podskoczyły.',
+  ()=>fem()?'Zaskoczyłaś nawet siebie.':'Zaskoczyłeś nawet siebie.',
+  ()=>'Taki awans to w gminie by zauważyli.',
+  ()=>'Tego nie spodziewał się nawet kombajn.',
+  ()=>'Wiedza rośnie szybciej niż rzepak w maju.',
+  ()=>fem()?'Nauczyłaś się czegoś. Dziwne, ale fakt.':'Nauczyłeś się czegoś. Dziwne, ale fakt.'
+];
+let luTimer=null;
+function levelUp(L){
+  const el=$('#lvlup'); $('#luName').textContent=L.name; $('#luNum').textContent='poziom '+L.idx+' z '+L.total;
+  $('#luQuip').textContent=QUIPS[Math.random()*QUIPS.length|0]();
+  el.querySelectorAll('.pt').forEach(x=>x.remove());
+  const icons=['🌾','🚜','🐄','🌻','🥔','🐔','🌽','🐖'];
+  for(let i=0;i<18;i++){ const d=document.createElement('span'); d.className='pt'; d.textContent=icons[Math.random()*icons.length|0]; d.style.left=Math.random()*100+'vw'; d.style.animationDuration=(2.2+Math.random()*1.8)+'s'; d.style.animationDelay=(Math.random()*.8)+'s'; el.appendChild(d); }
+  el.classList.add('show');
+  const lv=$('.level'); lv.classList.remove('bump'); void lv.offsetWidth; lv.classList.add('bump');
+  clearTimeout(luTimer); luTimer=setTimeout(hideLevelUp,4500);
+}
+function hideLevelUp(){ clearTimeout(luTimer); $('#lvlup').classList.remove('show'); }
+$('#lvlup').onclick=hideLevelUp;
 // ---------- chip tooltips (hover na desktopie, dotknięcie na telefonie)
 (function(){
   const tip=$('#tip'); let open=null;
