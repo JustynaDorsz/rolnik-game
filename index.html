@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Rolnik Game</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2F5D3A">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Rolnik">
 <meta name="theme-color" content="#2F5D3A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
@@ -213,6 +220,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 <div class="lvlup" id="lvlup"><div class="box"><div class="ring"></div><div class="cap">Twój nowy poziom</div><div class="name" id="luName"></div><div class="num" id="luNum"></div><p class="quip" id="luQuip"></p></div></div>
 
 <script src="pytania.js"></script>
+<script>if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
 <script>
 (function(){
 const Q = window.PYTANIA;
