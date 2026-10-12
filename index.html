@@ -346,7 +346,7 @@ const QUIPS=[
   ()=>'Z takim tempem to do żniw zdążysz.',
   ()=>'Krowy patrzą z lekkim podziwem.',
   ()=>'Ziemia drży. Trochę.',
-  ()=>'Egzaminator poprawia krawat.',
+  ()=>'Nie ciesz się, jeszcze nie znasz odpowiedzi na '+(Q.length-known())+' pytań.',
   ()=>'Ktoś tu chyba czytał, a nie tylko klikał.',
   ()=>'No dobra, to nie był przypadek.',
   ()=>'Stonka właśnie się dowiedziała i jest zaniepokojona.',
@@ -357,7 +357,14 @@ const QUIPS=[
   ()=>'Taki awans to w gminie by zauważyli.',
   ()=>'Tego nie spodziewał się nawet kombajn.',
   ()=>'Wiedza rośnie szybciej niż rzepak w maju.',
-  ()=>fem()?'Nauczyłaś się czegoś. Dziwne, ale fakt.':'Nauczyłeś się czegoś. Dziwne, ale fakt.'
+  ()=>fem()?'Nauczyłaś się czegoś. Wiem, też się dziwię.':'Nauczyłeś się czegoś. Wiem, też się dziwię.',
+  ()=>'Do Króla Rolnika jeszcze '+(LEVELS.length-level().idx)+' poziomów. Spokojnie, nie liczyłam.',
+  ()=>'Kury przestały się śmiać. Na razie.',
+  ()=>'Ciągnik odpalił za pierwszym razem. Zbieg okoliczności? Nie sądzę.',
+  ()=>'Sołtys zanotował. Ołówkiem, ale zanotował.',
+  ()=>'Z tego mleka będzie ser. Może.',
+  ()=>'Jeszcze '+(Q.length-known())+' pytań i możesz mówić, że to łatwe.',
+  ()=>'Dziki się naradzają. Niepokoi ich Twój postęp.'
 ];
 let luTimer=null;
 function levelUp(L){
