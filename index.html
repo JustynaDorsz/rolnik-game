@@ -165,6 +165,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 <div class="veil" id="veil"></div>
 <div class="sheet" id="sheet">
   <button class="close" id="closeSheet">×</button>
+  <h3>Płeć <span style="font-weight:400">(używane tylko do nazw poziomów i komunikatów)</span></h3>
+  <div class="row" id="sex">
+    <button class="tog" data-sex="f">Kobieta</button>
+    <button class="tog" data-sex="m">Mężczyzna</button>
+  </div>
   <h3>Tryb nauki</h3>
   <div class="row" id="modes">
     <button class="tog" data-mode="smart">Sprytny mix</button>
@@ -192,13 +197,17 @@ button{font:inherit;color:inherit;cursor:pointer}
 const Q = window.PYTANIA;
 const byId = Object.fromEntries(Q.map(q=>[q.id,q]));
 const CATS = [...new Set(Q.map(q=>q.d))].sort((a,b)=>a.localeCompare(b,'pl'));
-const LEVEL_NAMES = ["Absolutnie nie rolnik", "Nadal nie rolnik", "Dalej nie rolnik", "Rolnik? Nie słyszałem", "Widziałem traktor na zdjęciu", "Widziałem traktor na żywo", "Dotknąłem traktora", "Mylę pszenicę z jęczmieniem", "Boję się gęsi", "Pytam, czy kombajn ma biegi", "Powiedzmy, że parobek", "Parobek na próbę", "Parobek stażysta", "Parobek z ambicjami", "Parobek z własnymi gumofilcami", "Parobek roku (w swojej wsi)", "Nieogarnięty prawie pomocnik rolnika", "Trochę ogarnięty prawie pomocnik rolnika", "Ogarnięty prawie pomocnik rolnika", "Pomocnik rolnika po znajomości", "Pomocnik, którego jeszcze nie wyrzucili", "Pomocnik rolnika z opinią", "Rolnik wannabe", "Rolnik po YouTube", "Rolnik po TikToku", "Rolnik weekendowy", "Rolnik od święta", "Rolnik z doskoku", "Rolnik z miasta", "Rolnik na traktorze", "Rolnik z pomysłami", "Rolnik specjalista buraków", "Odróżniam oziminę od jarej", "Rolnik, co wstaje przed kogutem", "Gospodarz na pół etatu", "Gospodarz na trzy czwarte etatu", "Gospodarz (sąsiedzi jeszcze nie wiedzą)", "Gospodarz (sąsiedzi już plotkują)", "Gospodarz pełną gębą", "Gospodarz, co ma już swoje gumofilce i cudzy kombajn", "Ten, co wie, kiedy siać", "Ten, co wie, kiedy zbierać", "Ten, co wie, kiedy nie wyjeżdżać w pole", "Postrach chwastów", "Postrach stonki", "Postrach dzików", "Zaklinacz ciągników", "Zaklinacz pogody", "Zaklinacz krów", "Znawca nawozów", "Znawca gleby (liże i wie)", "Zaklinacz świń", "Sołtys w zapasie", "Zastępca sołtysa", "Sołtys", "Sołtys z pieczątką", "Sołtys dwóch wsi", "Agronom z przypadku", "Agronom z wyboru", "Agronom z powołania", "Doradca rolniczy (nieproszony)", "Doradca rolniczy (proszony)", "Doradca rolniczy (opłacany)", "Rolnik z własną pieczątką", "Mechanik od wszystkiego", "Inspektor własnego pola", "Legenda gminy", "Legenda powiatu", "Legenda województwa", "Gwiazda dożynek", "Honorowy gość targów rolnych", "Pan na włościach", "Mistrz roli", "Mistrz zasiewu", "Mistrz żniw", "Arcymistrz roli", "Arcymistrz zasiewu", "Rolnik, który zna krowy po imieniu", "Baron ziemniaczany", "Hrabia rzepakowy", "Książę pszenicy", "Władca pól", "Władca łąk i pastwisk", "Władca obornika", "Półbóg urodzaju", "Zaklinacz pól", "Rolnik na okładce „Tygodnika Rolniczego”", "Sąsiedzi przychodzą po radę", "Egzaminator się Ciebie boi", "Sz. P. Rolnik", "Ziemia sama się orze", "Król Rolnik"];
+const LEVEL_M = ["Absolutnie nie rolnik", "Nadal nie rolnik", "Dalej nie rolnik", "Rolnik? Nie słyszałem", "Widziałem traktor na zdjęciu", "Widziałem traktor na żywo", "Dotknąłem traktora", "Mylę pszenicę z jęczmieniem", "Boję się gęsi", "Pytam, czy kombajn ma biegi", "Powiedzmy, że parobek", "Parobek na próbę", "Parobek stażysta", "Parobek z ambicjami", "Parobek z własnymi gumofilcami", "Parobek roku (w swojej wsi)", "Nieogarnięty prawie pomocnik rolnika", "Trochę ogarnięty prawie pomocnik rolnika", "Ogarnięty prawie pomocnik rolnika", "Pomocnik rolnika po znajomości", "Pomocnik, którego jeszcze nie wyrzucili", "Pomocnik rolnika z opinią", "Rolnik wannabe", "Rolnik po YouTube", "Rolnik po TikToku", "Rolnik weekendowy", "Rolnik od święta", "Rolnik z doskoku", "Rolnik z miasta", "Rolnik na traktorze", "Rolnik z pomysłami", "Rolnik specjalista buraków", "Odróżniam oziminę od jarej", "Rolnik, co wstaje przed kogutem", "Gospodarz na pół etatu", "Gospodarz na trzy czwarte etatu", "Gospodarz (sąsiedzi jeszcze nie wiedzą)", "Gospodarz (sąsiedzi już plotkują)", "Gospodarz pełną gębą", "Gospodarz, co ma już swoje gumofilce i cudzy kombajn", "Ten, co wie, kiedy siać", "Ten, co wie, kiedy zbierać", "Ten, co wie, kiedy nie wyjeżdżać w pole", "Postrach chwastów", "Postrach stonki", "Postrach dzików", "Zaklinacz ciągników", "Zaklinacz pogody", "Zaklinacz krów", "Znawca nawozów", "Znawca gleby (liże i wie)", "Zaklinacz świń", "Sołtys w zapasie", "Zastępca sołtysa", "Sołtys", "Sołtys z pieczątką", "Sołtys dwóch wsi", "Agronom z przypadku", "Agronom z wyboru", "Agronom z powołania", "Doradca rolniczy (nieproszony)", "Doradca rolniczy (proszony)", "Doradca rolniczy (opłacany)", "Rolnik z własną pieczątką", "Mechanik od wszystkiego", "Inspektor własnego pola", "Legenda gminy", "Legenda powiatu", "Legenda województwa", "Gwiazda dożynek", "Honorowy gość targów rolnych", "Pan na włościach", "Mistrz roli", "Mistrz zasiewu", "Mistrz żniw", "Arcymistrz roli", "Arcymistrz zasiewu", "Rolnik, który zna krowy po imieniu", "Baron ziemniaczany", "Hrabia rzepakowy", "Książę pszenicy", "Władca pól", "Władca łąk i pastwisk", "Władca obornika", "Półbóg urodzaju", "Zaklinacz pól", "Rolnik na okładce „Tygodnika Rolniczego”", "Sąsiedzi przychodzą po radę", "Egzaminator się Ciebie boi", "Sz. P. Rolnik", "Ziemia sama się orze", "Król Rolnik"];
+const LEVEL_F = ["Absolutnie nie rolniczka", "Nadal nie rolniczka", "Dalej nie rolniczka", "Rolniczka? Nie słyszałam", "Widziałam traktor na zdjęciu", "Widziałam traktor na żywo", "Dotknęłam traktora", "Mylę pszenicę z jęczmieniem", "Boję się gęsi", "Pytam, czy kombajn ma biegi", "Powiedzmy, że parobkini", "Parobkini na próbę", "Parobkini stażystka", "Parobkini z ambicjami", "Parobkini z własnymi gumofilcami", "Parobkini roku (w swojej wsi)", "Nieogarnięta prawie pomocnica rolnika", "Trochę ogarnięta prawie pomocnica rolnika", "Ogarnięta prawie pomocnica rolnika", "Pomocnica rolnika po znajomości", "Pomocnica, której jeszcze nie wyrzucili", "Pomocnica rolnika z opinią", "Rolniczka wannabe", "Rolniczka po YouTube", "Rolniczka po TikToku", "Rolniczka weekendowa", "Rolniczka od święta", "Rolniczka z doskoku", "Rolniczka z miasta", "Rolniczka na traktorze", "Rolniczka z pomysłami", "Rolniczka specjalistka buraków", "Odróżniam oziminę od jarej", "Rolniczka, co wstaje przed kogutem", "Gospodyni na pół etatu", "Gospodyni na trzy czwarte etatu", "Gospodyni (sąsiedzi jeszcze nie wiedzą)", "Gospodyni (sąsiedzi już plotkują)", "Gospodyni pełną gębą", "Gospodyni, co ma już swoje gumofilce i cudzy kombajn", "Ta, co wie, kiedy siać", "Ta, co wie, kiedy zbierać", "Ta, co wie, kiedy nie wyjeżdżać w pole", "Postrach chwastów", "Postrach stonki", "Postrach dzików", "Zaklinaczka ciągników", "Zaklinaczka pogody", "Zaklinaczka krów", "Znawczyni nawozów", "Znawczyni gleby (liże i wie)", "Zaklinaczka świń", "Sołtyska w zapasie", "Zastępczyni sołtysa", "Sołtyska", "Sołtyska z pieczątką", "Sołtyska dwóch wsi", "Agronomka z przypadku", "Agronomka z wyboru", "Agronomka z powołania", "Doradczyni rolnicza (nieproszona)", "Doradczyni rolnicza (proszona)", "Doradczyni rolnicza (opłacana)", "Rolniczka z własną pieczątką", "Mechaniczka od wszystkiego", "Inspektorka własnego pola", "Legenda gminy", "Legenda powiatu", "Legenda województwa", "Gwiazda dożynek", "Honorowy gość targów rolnych", "Pani na włościach", "Mistrzyni roli", "Mistrzyni zasiewu", "Mistrzyni żniw", "Arcymistrzyni roli", "Arcymistrzyni zasiewu", "Rolniczka, która zna krowy po imieniu", "Baronowa ziemniaczana", "Hrabina rzepakowa", "Księżna pszenicy", "Władczyni pól", "Władczyni łąk i pastwisk", "Władczyni obornika", "Półbogini urodzaju", "Zaklinaczka pól", "Rolniczka na okładce „Tygodnika Rolniczego”", "Sąsiedzi przychodzą po radę", "Egzaminator się Ciebie boi", "Sz. P. Rolniczka", "Ziemia sama się orze", "Królowa Rolniczka"];
+const LEVEL_NAMES = LEVEL_M;
 const LEVEL_STEPS = LEVEL_NAMES.slice(1).map((_,i)=>i<10?15:20);
 const LEVELS = LEVEL_NAMES.map((n,i)=>[LEVEL_STEPS.slice(0,i).reduce((a,b)=>a+b,0),n]);
 const KEY='rol04v1';
 
 let S = load(); if(S.v!==2){ S.pts=Math.round(S.pts/10); S.v=2; save(); }
-function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.q) return s; }catch(e){} return {pts:0,best:0,q:{},mode:'smart',cats:[],exams:[],recent:[]}; }
+if(!S.sex) S.sex='f';
+const fem=()=>S.sex!=='m';
+function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.q) return s; }catch(e){} return {pts:0,best:0,q:{},mode:'smart',cats:[],exams:[],recent:[],sex:'f'}; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
 // ---------- helpers
@@ -210,7 +219,7 @@ function stat(id){ const st=S.q[id]||(S.q[id]={s:0,c:0,w:0,lw:0,run:0,box:0,due:
 const INTERVALS=[5*60e3, 30*60e3, 3*3600e3, 86400e3, 3*86400e3, 7*86400e3, 14*86400e3, 30*86400e3];
 function review(st,ok){ st.s++; if(ok){st.c++;st.run++;st.lw=0;st.box=Math.min(st.box+1,INTERVALS.length-1);} else {st.w++;st.run=0;st.lw=1;st.box=0;} st.due=Date.now()+INTERVALS[st.box]; }
 function pool(){ const cs=S.cats.length?new Set(S.cats):null; return Q.filter(q=>!cs||cs.has(q.d)); }
-function level(){ let i=0; for(let k=0;k<LEVELS.length;k++) if(S.pts>=LEVELS[k][0]) i=k; const cur=LEVELS[i], nxt=LEVELS[i+1]; return {name:cur[1], idx:i+1, total:LEVELS.length, pct: nxt? (S.pts-cur[0])/(nxt[0]-cur[0])*100 : 100}; }
+function level(){ let i=0; for(let k=0;k<LEVELS.length;k++) if(S.pts>=LEVELS[k][0]) i=k; const cur=LEVELS[i], nxt=LEVELS[i+1]; return {name:(S.sex==='m'?LEVEL_M:LEVEL_F)[i], idx:i+1, total:LEVELS.length, pct: nxt? (S.pts-cur[0])/(nxt[0]-cur[0])*100 : 100}; }
 
 // ---------- header
 function renderHead(){
@@ -259,7 +268,7 @@ function qBody(q,order,letters){
 }
 function showQ(){
   const q=pick(); const card=$('#card');
-  if(!q){ card.innerHTML='<div class="empty">'+(S.mode==='wrong'?'Brak błędów do powtórki – wszystko poprawione! 🎉':'Wszystkie pytania z tego zakresu już widziałeś.')+'<br><br><button class="btn primary" id="toSmart">Przejdź do sprytnego miksu</button></div>'; $('#toSmart').onclick=()=>{S.mode='smart';save();renderHead();showQ()}; return; }
+  if(!q){ card.innerHTML='<div class="empty">'+(S.mode==='wrong'?'Brak błędów do powtórki – wszystko poprawione! 🎉':'Wszystkie pytania z tego zakresu już '+(fem()?'widziałaś':'widziałeś')+'.')+'<br><br><button class="btn primary" id="toSmart">Przejdź do sprytnego miksu</button></div>'; $('#toSmart').onclick=()=>{S.mode='smart';save();renderHead();showQ()}; return; }
   cur.q=q; cur.answered=false; cur.order=shuffle([0,1,2,3]);
   card.innerHTML=qBody(q,cur.order,['A','B','C','D'])+'<div class="fb" id="fb"></div><button class="next" id="next">Dalej →</button>';
   card.querySelectorAll('.ans').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
@@ -279,7 +288,7 @@ function answer(i){
   card.querySelectorAll('.ans').forEach(b=>{ b.disabled=true; const bi=+b.dataset.i; if(bi===q.a) b.classList.add('ok'); else if(bi===i) b.classList.add('bad'); });
   const fb=$('#fb'); fb.className='fb show '+(ok?'ok':'bad');
   const praise=['Dobrze!','Trafione!','Zgadza się.','Tak jest!','Świetnie!'][Math.random()*5|0];
-  fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':(loss?'<span class="gain">−'+loss+'</span>':'')+'<h4>'+(loss?'Przecież to już umiałeś!':'Nie tym razem.')+'</h4><p>Poprawna odpowiedź: <b>'+esc(q.o[q.a])+'</b></p>')+(q.w?'<p style="margin-top:6px">'+esc(q.w)+'</p>':'');
+  fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':(loss?'<span class="gain">−'+loss+'</span>':'')+'<h4>'+(loss?(fem()?'Przecież to już umiałaś!':'Przecież to już umiałeś!'):'Nie tym razem.')+'</h4><p>Poprawna odpowiedź: <b>'+esc(q.o[q.a])+'</b></p>')+(q.w?'<p style="margin-top:6px">'+esc(q.w)+'</p>':'');
   $('#next').classList.add('show'); renderHead();
 }
 
@@ -307,6 +316,7 @@ $('#menuBtn').onclick=openSheet; $('#veil').onclick=closeSheet; $('#closeSheet')
 let tmpMode, tmpCats;
 function renderSheet(){
   tmpMode=S.mode; tmpCats=new Set(S.cats);
+  $('#sex').querySelectorAll('.tog').forEach(b=>{b.classList.toggle('on',b.dataset.sex===S.sex); b.onclick=()=>{S.sex=b.dataset.sex; save(); $('#sex').querySelectorAll('.tog').forEach(x=>x.classList.toggle('on',x===b)); renderHead();};});
   $('#modes').querySelectorAll('.tog').forEach(b=>{b.classList.toggle('on',b.dataset.mode===tmpMode); b.onclick=()=>{tmpMode=b.dataset.mode; $('#modes').querySelectorAll('.tog').forEach(x=>x.classList.toggle('on',x===b));}});
   $('#cats').innerHTML=CATS.map(c=>'<button class="tog small'+(tmpCats.has(c)?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+' <span style="opacity:.7">'+Q.filter(q=>q.d===c).length+'</span></button>').join('');
   $('#cats').querySelectorAll('.tog').forEach(b=>b.onclick=()=>{const c=b.dataset.c; if(tmpCats.has(c)) tmpCats.delete(c); else tmpCats.add(c); b.classList.toggle('on');});
@@ -315,7 +325,7 @@ function renderSheet(){
   $('#info').textContent='Bank: '+Q.length+' unikalnych pytań z egzaminów CKE ROL.04 (2013–2025). Najlepsza seria: '+S.best+'. Wynik zaliczający na egzaminie: 20/40.';
 }
 $('#apply').onclick=()=>{ S.cats=[...tmpCats]; if(tmpMode==='exam'){ S.mode='smart'; save(); closeSheet(); startExam(); return; } S.mode=tmpMode; save(); closeSheet(); showQ(); };
-$('#reset').onclick=()=>{ if(confirm('Wyzerować punkty i wszystkie statystyki?')){ S={pts:0,best:0,q:{},mode:'smart',cats:[],exams:[],recent:[]}; cur.streak=0; save(); closeSheet(); showQ(); } };
+$('#reset').onclick=()=>{ if(confirm('Wyzerować punkty i wszystkie statystyki?')){ S={pts:0,best:0,q:{},mode:'smart',cats:[],exams:[],recent:[],sex:S.sex}; cur.streak=0; save(); closeSheet(); showQ(); } };
 $('#exams').onclick=()=>{ const h=S.exams; alert(h.length? h.map(e=>e.date+': '+e.score+'/'+e.n+(e.score>=e.n/2?' ✔ zdany':' ✘')).join('\n') : 'Nie było jeszcze egzaminu próbnego.'); };
 
 // ---------- exam mode
