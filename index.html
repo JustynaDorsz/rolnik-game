@@ -130,6 +130,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .zoom{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;place-items:center;z-index:20;cursor:zoom-out}
 .zoom.show{display:grid}
 .zoom img{max-width:96vw;max-height:94vh;height:auto;border-radius:6px;image-rendering:auto}
+.chip[data-tip]{cursor:help}
+.tip{position:absolute;z-index:30;max-width:min(300px,calc(100vw - 24px));background:var(--ink);color:#fff;font-size:13px;line-height:1.4;padding:9px 12px;border-radius:9px;box-shadow:0 6px 20px rgba(0,0,0,.18);display:none}
+.tip.show{display:block}
+.tip:before{content:"";position:absolute;top:-6px;left:var(--ax,20px);border:6px solid transparent;border-top:0;border-bottom-color:var(--ink)}
 .empty{text-align:center;padding:30px 10px;color:var(--mute)}
 @media (max-width:420px){.qtxt{font-size:19px}.chip{padding:5px 9px;font-size:12px}.brand{font-size:16px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -140,9 +144,9 @@ button{font:inherit;color:inherit;cursor:pointer}
   <div class="top">
     <div class="brand">Rolnik Game<small>trening do egzaminu ROL.04</small></div>
     <div class="chips">
-      <div class="chip pts" title="Punkty: +1 za poprawną odpowiedź (+2 przy serii od 5 w górę), −1 za błąd w pytaniu, które już kiedyś umiałaś/eś. Punkty podnoszą Twój poziom.">★ <b id="pts">0</b></div>
-      <div class="chip streak" id="streakChip" title="Seria: ile poprawnych odpowiedzi z rzędu. Od 3 chip się rozgrzewa, od 5 dostajesz +2 pkt za pytanie. Błąd zeruje serię.">🔥 <b id="streak">0</b></div>
-      <div class="chip" title="Trafność: procent poprawnych odpowiedzi ze wszystkich dotychczas udzielonych (łącznie z powtórkami)."><b id="acc">–</b></div>
+      <div class="chip pts" data-tip="Punkty: +1 za poprawną odpowiedź (+2 przy serii od 5 w górę), −1 za błąd w pytaniu, które już kiedyś umiałaś/eś. Punkty podnoszą Twój poziom.">★ <b id="pts">0</b></div>
+      <div class="chip streak" id="streakChip" data-tip="Seria: ile poprawnych odpowiedzi z rzędu. Od 3 chip się rozgrzewa, od 5 dostajesz +2 pkt za pytanie. Błąd zeruje serię.">🔥 <b id="streak">0</b></div>
+      <div class="chip" data-tip="Trafność: procent poprawnych odpowiedzi ze wszystkich dotychczas udzielonych (łącznie z powtórkami)."><b id="acc">–</b></div>
       <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
     </div>
   </div>
@@ -190,6 +194,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   <p style="font-size:12px;color:var(--mute);margin-top:14px" id="info"></p>
 </div>
 <div class="zoom" id="zoom"><img alt=""></div>
+<div class="tip" id="tip" role="tooltip"></div>
 
 <script src="pytania.js"></script>
 <script>
@@ -309,6 +314,19 @@ function openZoom(src){
   $('#zoom').classList.add('show');
 }
 
+
+// ---------- chip tooltips (hover na desktopie, dotknięcie na telefonie)
+(function(){
+  const tip=$('#tip'); let open=null;
+  function show(ch){ tip.textContent=ch.dataset.tip; tip.classList.add('show'); const r=ch.getBoundingClientRect(); const w=tip.offsetWidth; let x=r.left+r.width/2-w/2; x=Math.max(12,Math.min(x,innerWidth-w-12)); tip.style.left=x+scrollX+'px'; tip.style.top=r.bottom+scrollY+8+'px'; tip.style.setProperty('--ax',(r.left+r.width/2-x-6)+'px'); open=ch; }
+  function hide(){ tip.classList.remove('show'); open=null; }
+  const hoverable=matchMedia('(hover:hover)').matches;
+  document.querySelectorAll('.chip[data-tip]').forEach(ch=>{
+    ch.addEventListener('click',e=>{ e.stopPropagation(); open===ch?hide():show(ch); });
+    if(hoverable){ ch.addEventListener('mouseenter',()=>show(ch)); ch.addEventListener('mouseleave',hide); }
+  });
+  document.addEventListener('click',hide); addEventListener('scroll',hide,{passive:true}); addEventListener('resize',hide);
+})();
 // ---------- menu
 function openSheet(){ renderSheet(); $('#sheet').classList.add('show'); $('#veil').classList.add('show'); }
 function closeSheet(){ $('#sheet').classList.remove('show'); $('#veil').classList.remove('show'); }
