@@ -80,6 +80,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .fb h4{margin:0 0 4px;font-size:15px}
 .fb p{margin:0;font-size:14px;line-height:1.45}
 .fb .gain{float:right;font-weight:700;font-size:14px}
+.card{display:flex;flex-direction:column}
+.card>*{min-width:0}
+.fb.why p{margin:0}
+.next{order:1}
+@media (hover:none) and (pointer:coarse){.fb.why{order:2}}
 .next{display:none;width:100%;margin-top:14px;background:var(--green);color:#fff;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:600;letter-spacing:.01em}
 .next:hover{background:#264C2F}
 .next.show{display:block}
@@ -302,7 +307,7 @@ function showQ(){
   const q=pick(); const card=$('#card');
   if(!q){ card.innerHTML='<div class="empty">'+(S.mode==='wrong'?'Brak błędów do powtórki – wszystko poprawione! 🎉':'Wszystkie pytania z tego zakresu już '+(fem()?'widziałaś':'widziałeś')+'.')+'<br><br><button class="btn primary" id="toSmart">Przejdź do sprytnego miksu</button></div>'; $('#toSmart').onclick=()=>{S.mode='smart';save();renderHead();showQ()}; return; }
   cur.q=q; cur.answered=false; cur.order=shuffle([0,1,2,3]);
-  card.innerHTML=qBody(q,cur.order,['A','B','C','D'])+'<div class="fb" id="fb"></div><button class="next" id="next">Dalej →</button>';
+  card.innerHTML=qBody(q,cur.order,['A','B','C','D'])+'<div class="fb" id="fb"></div><button class="next" id="next">Dalej →</button><div class="fb why" id="why"></div>';
   card.querySelectorAll('.ans').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
   $('#next').onclick=showQ;
   const im=card.querySelector('.qimg'); if(im) im.onclick=()=>openZoom(im.src);
@@ -320,7 +325,8 @@ function answer(i){
   card.querySelectorAll('.ans').forEach(b=>{ b.disabled=true; const bi=+b.dataset.i; if(bi===q.a) b.classList.add('ok'); else if(bi===i) b.classList.add('bad'); });
   const fb=$('#fb'); fb.className='fb show '+(ok?'ok':'bad');
   const praise=['Dobrze!','Trafione!','Zgadza się.','Tak jest!','Świetnie!'][Math.random()*5|0];
-  fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':(loss?'<span class="gain">−'+loss+'</span>':'')+'<h4>'+(loss?(fem()?'Przecież to już umiałaś!':'Przecież to już umiałeś!'):'Nie tym razem.')+'</h4><p>Poprawna odpowiedź: <b>'+esc(q.o[q.a])+'</b></p>')+(q.w?'<p style="margin-top:6px">'+esc(q.w)+'</p>':'');
+  fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':(loss?'<span class="gain">−'+loss+'</span>':'')+'<h4>'+(loss?(fem()?'Przecież to już umiałaś!':'Przecież to już umiałeś!'):'Nie tym razem.')+'</h4><p>Poprawna odpowiedź: <b>'+esc(q.o[q.a])+'</b></p>');
+  const why=$('#why'); if(q.w){ why.className='fb why show '+(ok?'ok':'bad'); why.innerHTML='<p>'+esc(q.w)+'</p>'; }
   $('#next').classList.add('show'); renderHead();
   const L=level(); if(L.idx>lvlBefore) levelUp(L);
 }
