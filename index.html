@@ -157,6 +157,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .level.bump #lvlName{animation:bump .6s cubic-bezier(.2,1.4,.4,1)}
 @keyframes bump{30%{transform:scale(1.12);color:var(--straw)}}
 .empty{text-align:center;padding:30px 10px;color:var(--mute)}
+@media (hover:none) and (pointer:coarse){.hint{display:none}}
 @media (max-width:420px){.qtxt{font-size:19px}.chip{padding:5px 9px;font-size:12px}.brand{font-size:16px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
