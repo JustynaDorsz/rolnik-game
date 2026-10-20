@@ -1,6 +1,6 @@
 // Service worker: działa offline. Pliki główne – najpierw sieć (żeby aktualizacje wchodziły), obrazki – najpierw cache.
-const VERSION = 'v1';
-const CORE = ['./', './index.html', './pytania.js', './manifest.json', './icon-192.png', './icon-512.png'];
+const VERSION = 'v2';
+const CORE = ['./', './index.html', './pytania.js', './slownik.js', './manifest.json', './icon-192.png', './icon-512.png'];
 const CACHE = 'rolnik-' + VERSION;
 
 self.addEventListener('install', e => {

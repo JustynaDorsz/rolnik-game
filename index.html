@@ -139,6 +139,16 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 .ans.rev{pointer-events:none}
 .ans.chosen{border-style:dashed}
+.uwaga{margin-top:10px;border-radius:12px;padding:12px 14px;background:#FFF1DC;color:#7A4A00;border:1px solid #F1C98A;font-size:14px;line-height:1.45;animation:pop .25s ease}
+.uwaga b{display:block;margin-bottom:3px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#B35C00}
+.term{border-bottom:2px dotted #B35C00;cursor:help;text-decoration:none;color:inherit}
+.ans.ok .term,.ans.bad .term{border-bottom-color:currentColor}
+.gtip{position:fixed;z-index:30;max-width:min(340px,calc(100vw - 24px));background:#fff;color:var(--ink);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.22);padding:12px 14px;font-size:14px;line-height:1.45;display:none}
+.gtip.show{display:block;animation:pop .18s ease}
+.gtip h5{margin:0 0 4px;font-size:15px;font-family:var(--serif);font-weight:600}
+.gtip img{display:block;width:100%;max-height:200px;object-fit:cover;border-radius:9px;margin:8px 0 4px;background:#eee}
+.gtip small{color:var(--mute);font-size:11px}
+.gtip .x{position:absolute;top:6px;right:8px;border:0;background:none;font-size:18px;color:var(--mute);cursor:pointer}
 .zoom{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;place-items:center;z-index:20;cursor:zoom-out}
 .zoom.show{display:grid}
 .zoom img{max-width:96vw;max-height:94vh;height:auto;border-radius:6px;image-rendering:auto}
@@ -194,6 +204,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   </div>
 </div>
 
+<div class="gtip" id="gtip" role="dialog"></div>
 <div class="veil" id="veil"></div>
 <div class="sheet" id="sheet">
   <button class="close" id="closeSheet">×</button>
@@ -226,6 +237,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 <div class="lvlup" id="lvlup"><div class="box"><div class="ring"></div><div class="cap">Twój nowy poziom</div><div class="name" id="luName"></div><div class="num" id="luNum"></div><p class="quip" id="luQuip"></p></div></div>
 
 <script src="pytania.js"></script>
+<script src="slownik.js"></script>
 <script>if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
 <script>
 (function(){
@@ -306,7 +318,7 @@ function qBody(q,order,letters){
 function showQ(){
   const q=pick(); const card=$('#card');
   if(!q){ card.innerHTML='<div class="empty">'+(S.mode==='wrong'?'Brak błędów do powtórki – wszystko poprawione! 🎉':'Wszystkie pytania z tego zakresu już '+(fem()?'widziałaś':'widziałeś')+'.')+'<br><br><button class="btn primary" id="toSmart">Przejdź do sprytnego miksu</button></div>'; $('#toSmart').onclick=()=>{S.mode='smart';save();renderHead();showQ()}; return; }
-  cur.q=q; cur.answered=false; cur.order=shuffle([0,1,2,3]);
+  hideTip(); cur.q=q; cur.answered=false; cur.order=shuffle([0,1,2,3]);
   card.innerHTML=qBody(q,cur.order,['A','B','C','D'])+'<div class="fb" id="fb"></div><button class="next" id="next">Dalej →</button><div class="fb why" id="why"></div>';
   card.querySelectorAll('.ans').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
   $('#next').onclick=showQ;
@@ -327,9 +339,39 @@ function answer(i){
   const praise=['Dobrze!','Trafione!','Zgadza się.','Tak jest!','Świetnie!'][Math.random()*5|0];
   fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':(loss?'<span class="gain">−'+loss+'</span>':'')+'<h4>'+(loss?(fem()?'Przecież to już umiałaś!':'Przecież to już umiałeś!'):'Nie tym razem.')+'</h4><p>Poprawna odpowiedź: <b>'+esc(q.o[q.a])+'</b></p>');
   const why=$('#why'); if(q.w){ why.className='fb why show '+(ok?'ok':'bad'); why.innerHTML='<p>'+esc(q.w)+'</p>'; }
+  if(q.u){ const u=document.createElement('div'); u.className='uwaga'; u.innerHTML='<b>⚠ Uwaga</b>'+esc(q.u); (q.w?$('#why'):fb).after(u); }
+  markTerms(card);
   $('#next').classList.add('show'); renderHead();
   const L=level(); if(L.idx>lvlBefore) levelUp(L);
 }
+
+// ---------- glossary (terms highlighted only after answering)
+const GL=(window.SLOWNIK||[]);
+const STEMS=[]; GL.forEach((g,i)=>g.s.forEach(st=>STEMS.push([st.toLowerCase(),i])));
+STEMS.sort((a,b)=>b[0].length-a[0].length);
+function findTerm(word){ const w=word.toLowerCase(); for(const [st,i] of STEMS){ if(w.startsWith(st)&&w.length-st.length<=5) return i; } return -1; }
+function markTerms(root){
+  const seen=new Set(); const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{ const p=n.parentElement; if(!p||p.closest('.fb,.why,.uwaga,.src,.k,.next,table')) return NodeFilter.FILTER_REJECT; return n.nodeValue.trim()?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT; }});
+  const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(n=>{
+    const parts=n.nodeValue.split(/([\p{L}\p{N}-]+)/u); let hit=false;
+    const frag=document.createDocumentFragment();
+    parts.forEach((pt,k)=>{ if(k%2===1){ const gi=findTerm(pt); if(gi>=0&&!seen.has(gi)){ seen.add(gi); hit=true; const sp=document.createElement('span'); sp.className='term'; sp.dataset.g=gi; sp.textContent=pt; frag.appendChild(sp); return; } } frag.appendChild(document.createTextNode(pt)); });
+    if(hit) n.replaceWith(frag);
+  });
+}
+const gtip=$('#gtip'); let tipFor=null;
+function showTip(el){
+  const g=GL[+el.dataset.g]; if(!g) return; tipFor=el;
+  gtip.innerHTML='<button class="x" aria-label="Zamknij">×</button><h5>'+esc(g.t)+'</h5>'+esc(g.d)+(g.img?'<img src="'+g.img+'" alt="" loading="lazy" onerror="this.style.display=\'none\';var n=this.nextElementSibling;if(n)n.style.display=\'none\'"><small>Zdjęcie: Wikipedia („'+esc(g.w)+'”)</small>':'');
+  gtip.querySelector('.x').onclick=hideTip;
+  gtip.classList.add('show'); place(el);
+}
+function place(el){ const r=el.getBoundingClientRect(); const tw=gtip.offsetWidth, th=gtip.offsetHeight; let x=Math.min(Math.max(12,r.left),window.innerWidth-tw-12); let y=r.bottom+8; if(y+th>window.innerHeight-8) y=Math.max(8,r.top-th-8); gtip.style.left=x+'px'; gtip.style.top=y+'px'; }
+function hideTip(){ gtip.classList.remove('show'); tipFor=null; }
+document.addEventListener('click',e=>{ const t=e.target.closest('.term'); if(t){ e.preventDefault(); e.stopPropagation(); showTip(t); return; } if(!e.target.closest('.gtip')) hideTip(); });
+document.addEventListener('mouseover',e=>{ const t=e.target.closest('.term'); if(t&&t!==tipFor&&matchMedia('(hover:hover)').matches) showTip(t); });
+window.addEventListener('scroll',()=>{ if(tipFor) place(tipFor); },{passive:true});
 
 // keyboard
 document.addEventListener('keydown',e=>{
