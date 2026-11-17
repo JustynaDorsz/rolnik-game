@@ -315,10 +315,12 @@ function qBody(q,order,letters){
     '<p class="qtxt">'+esc(q.q)+'</p>'+tableHtml(q.t)+
     '<div class="answers">'+order.map((oi,i)=>'<button class="ans" data-i="'+oi+'"><span class="k">'+letters[i]+'</span><span>'+esc(q.o[oi])+'</span></button>').join('')+'</div>';
 }
+// odpowiedzi A–D narysowane na obrazku: nie tasuj kolejności
+function ansOrder(q){ return q.o.join('')==='ABCD' ? [0,1,2,3] : shuffle([0,1,2,3]); }
 function showQ(){
   const q=pick(); const card=$('#card');
   if(!q){ card.innerHTML='<div class="empty">'+(S.mode==='wrong'?'Brak błędów do powtórki – wszystko poprawione! 🎉':'Wszystkie pytania z tego zakresu już '+(fem()?'widziałaś':'widziałeś')+'.')+'<br><br><button class="btn primary" id="toSmart">Przejdź do sprytnego miksu</button></div>'; $('#toSmart').onclick=()=>{S.mode='smart';save();renderHead();showQ()}; return; }
-  hideTip(); cur.q=q; cur.answered=false; cur.order=shuffle([0,1,2,3]);
+  hideTip(); cur.q=q; cur.answered=false; cur.order=ansOrder(q);
   card.innerHTML=qBody(q,cur.order,['A','B','C','D'])+'<div class="fb" id="fb"></div><button class="next" id="next">Dalej →</button><div class="fb why" id="why"></div>';
   card.querySelectorAll('.ans').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
   $('#next').onclick=showQ;
@@ -461,7 +463,7 @@ $('#exams').onclick=()=>{ const h=S.exams; alert(h.length? h.map(e=>e.date+': '+
 // ---------- exam mode
 const exam={on:false,qs:[],ans:[],i:0,end:0,timer:null};
 function startExam(){
-  exam.on=true; exam.qs=shuffle(pool()).slice(0,40); exam.ans=exam.qs.map(()=>null); exam.orders=exam.qs.map(()=>shuffle([0,1,2,3])); exam.i=0; exam.end=Date.now()+60*60*1000;
+  exam.on=true; exam.qs=shuffle(pool()).slice(0,40); exam.ans=exam.qs.map(()=>null); exam.orders=exam.qs.map(q=>ansOrder(q)); exam.i=0; exam.end=Date.now()+60*60*1000;
   $('#practice').style.display='none'; $('#exam').style.display='block';
   exam.timer=setInterval(tick,1000); tick(); examShow();
 }
