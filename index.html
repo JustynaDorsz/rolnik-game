@@ -313,10 +313,11 @@ function tableHtml(t){ return (t||[]).map(tb=>'<table class="qtbl">'+tb.split('\
 function qBody(q,order,letters){
   return srcLine(q)+(q.img?'<img class="qimg" src="'+q.img+'" alt="ilustracja do pytania">':'')+
     '<p class="qtxt">'+esc(q.q)+'</p>'+tableHtml(q.t)+
-    '<div class="answers">'+order.map((oi,i)=>'<button class="ans" data-i="'+oi+'"><span class="k">'+letters[i]+'</span><span>'+esc(q.o[oi])+'</span></button>').join('')+'</div>';
+    '<div class="answers">'+order.map((oi,i)=>'<button class="ans" data-i="'+oi+'"><span class="k">'+letters[i]+'</span><span>'+esc(optText(q,oi))+'</span></button>').join('')+'</div>';
 }
-// odpowiedzi A–D narysowane na obrazku: nie tasuj kolejności
-function ansOrder(q){ return q.o.join('')==='ABCD' ? [0,1,2,3] : shuffle([0,1,2,3]); }
+// odpowiedzi A–D narysowane na obrazku: pokazuj „Rysunek X”, kolejność losowa
+function ansOrder(q){ return shuffle([0,1,2,3]); }
+function optText(q,oi){ return q.o.join('')==='ABCD' ? 'Rysunek '+q.o[oi] : q.o[oi]; }
 function showQ(){
   const q=pick(); const card=$('#card');
   if(!q){ card.innerHTML='<div class="empty">'+(S.mode==='wrong'?'Brak błędów do powtórki – wszystko poprawione! 🎉':'Wszystkie pytania z tego zakresu już '+(fem()?'widziałaś':'widziałeś')+'.')+'<br><br><button class="btn primary" id="toSmart">Przejdź do sprytnego miksu</button></div>'; $('#toSmart').onclick=()=>{S.mode='smart';save();renderHead();showQ()}; return; }
@@ -339,7 +340,7 @@ function answer(i){
   card.querySelectorAll('.ans').forEach(b=>{ b.disabled=true; const bi=+b.dataset.i; if(bi===q.a) b.classList.add('ok'); else if(bi===i) b.classList.add('bad'); });
   const fb=$('#fb'); fb.className='fb show '+(ok?'ok':'bad');
   const praise=['Dobrze!','Trafione!','Zgadza się.','Tak jest!','Świetnie!'][Math.random()*5|0];
-  fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':(loss?'<span class="gain">−'+loss+'</span>':'')+'<h4>'+(loss?(fem()?'Przecież to już umiałaś!':'Przecież to już umiałeś!'):'Nie tym razem.')+'</h4><p>Poprawna odpowiedź: <b>'+esc(q.o[q.a])+'</b></p>');
+  fb.innerHTML=(ok?'<span class="gain">+'+gain+'</span><h4>'+praise+(cur.streak>=3?' Seria '+cur.streak+' 🔥':'')+'</h4>':(loss?'<span class="gain">−'+loss+'</span>':'')+'<h4>'+(loss?(fem()?'Przecież to już umiałaś!':'Przecież to już umiałeś!'):'Nie tym razem.')+'</h4><p>Poprawna odpowiedź: <b>'+esc(optText(q,q.a))+'</b></p>');
   const why=$('#why'); if(q.w){ why.className='fb why show '+(ok?'ok':'bad'); why.innerHTML='<p>'+esc(q.w)+'</p>'; }
   if(q.u){ const u=document.createElement('div'); u.className='uwaga'; u.innerHTML='<b>⚠ Uwaga</b>'+esc(q.u); (q.w?$('#why'):fb).after(u); }
   markTerms(card);
@@ -487,7 +488,7 @@ function finishExam(){
   const pass=score>=exam.qs.length/2; S.pts+=score+(pass?5:0); S.exams.push({date:new Date().toLocaleDateString('pl-PL'),score,n:exam.qs.length}); save();
   const wrong=exam.qs.map((q,i)=>[q,i]).filter(([q,i])=>exam.ans[i]!==q.a);
   $('#examCard').innerHTML='<div class="result"><div class="big '+(pass?'pass':'fail')+'">'+score+' / '+exam.qs.length+'</div><p>'+(pass?'Egzamin zaliczony (próg 50%). +'+(score*10+100)+' pkt':'Poniżej progu 50%. +'+(score*10)+' pkt – następnym razem pójdzie lepiej.')+'</p></div>'+
-    (wrong.length?'<h3 style="font-size:15px;margin:18px 0 8px">Do powtórki ('+wrong.length+')</h3>'+wrong.map(([q,i])=>'<div style="border-top:1px solid var(--line);padding:12px 0"><p class="qtxt" style="font-size:16px;margin:0 0 8px">'+esc(q.q)+'</p>'+(q.img?'<img class="qimg" src="'+q.img+'" style="max-height:200px">':'')+'<div style="font-size:14px">'+(exam.ans[i]===null?'<span style="color:var(--mute)">brak odpowiedzi</span>':'<span style="color:var(--bad)">✘ '+esc(q.o[exam.ans[i]])+'</span>')+'<br><span style="color:var(--ok)">✔ '+esc(q.o[q.a])+'</span></div></div>').join(''):'')+
+    (wrong.length?'<h3 style="font-size:15px;margin:18px 0 8px">Do powtórki ('+wrong.length+')</h3>'+wrong.map(([q,i])=>'<div style="border-top:1px solid var(--line);padding:12px 0"><p class="qtxt" style="font-size:16px;margin:0 0 8px">'+esc(q.q)+'</p>'+(q.img?'<img class="qimg" src="'+q.img+'" style="max-height:200px">':'')+'<div style="font-size:14px">'+(exam.ans[i]===null?'<span style="color:var(--mute)">brak odpowiedzi</span>':'<span style="color:var(--bad)">✘ '+esc(q.o[exam.ans[i]])+'</span>')+'<br><span style="color:var(--ok)">✔ '+esc(optText(q,q.a))+'</span></div></div>').join(''):'')+
     '<button class="next show" id="backP">Wróć do nauki</button>';
   renderDots(true); $('#backP').onclick=()=>{ exam.on=false; $('#exam').style.display='none'; $('#practice').style.display='block'; showQ(); };
   renderHead(); window.scrollTo({top:0});
